@@ -19,7 +19,7 @@
         <div class="page">
             <div class="oe_structure"/>
 <br/>
-            <h2>Request for Quotation <span t-field="o.name"/></h2>
+            <h6>Request for Quotation <span t-field="o.name"/></h6>
 <br/>
 
             <div id="informations" class="row mt32 mb32">
@@ -33,10 +33,10 @@
                     <strong>Your Order Reference:</strong>
                     <p t-field="o.partner_ref" class="m-0"/>
                 </div>
-                <div t-if="o.date_order" class="col-3 bm-2">
+                <div t-if="o.date" class="col-3 bm-2">
                     <br/>
                     <strong>Order Date:</strong>
-                    <p t-field="o.date_order" class="m-0"/>
+                    <p t-field="o.date" class="m-0"/>
                 </div>
             </div>
 

@@ -23,10 +23,10 @@
         <div class="page">
             <div class="oe_structure"/>
   <br/>
-            <h2 t-if="o.state == 'draft'">Request for Quotation #<span t-field="o.name"/></h2>
-            <h2 t-if="o.state in ['sent', 'to approve']">Purchase Order #<span t-field="o.name"/></h2>
-            <h2 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h2>
-            <h2 t-if="o.state == 'cancel'">Cancelled Purchase Order #<span t-field="o.name"/></h2>
+            <h6 t-if="o.state == 'draft'">Request for Quotation #<span t-field="o.name"/></h6>
+            <h6 t-if="o.state in ['sent', 'to approve']">Purchase Order #<span t-field="o.name"/></h6>
+            <h6 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h6>
+            <h6 t-if="o.state == 'cancel'">Cancelled Purchase Order #<span t-field="o.name"/></h6>
 
             <div id="informations" class="row mt32 mb32">
                 <div t-if="o.user_id" class="col-3 bm-2">
@@ -42,7 +42,7 @@
                 <div t-if="o.date_order" class="col-3 bm-2">
                     <br/>
                     <strong>Order Date:</strong>
-                    <p t-field="o.date_order" class="m-0"/>
+                    <p t-field="o.date" class="m-0"/>
                 </div>
             </div>
 
@@ -50,7 +50,7 @@
                 <thead>
                     <tr>
                         <br/>
-                        <th name="th_product_id" class="text-center"><strong>Product:</strong></th>
+                        <th name="th_product_id" class="text-left"><strong>Product:</strong></th>
                         <th name="th_description" class="text-right"><strong>Description:</strong></th>
                         <th name="th_date_req" class="text-right"><strong>Date Required:</strong></th>
                         <th name="th_quantity" class="text-right"><strong>Quantity:</strong></th>
@@ -65,14 +65,14 @@
 
                         <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
                             <t t-if="not line.display_type">
-                                <td class="text-center">
+                                <td class="text-left">
                                     <span t-field="line.product_id"/>
                                 </td>
                                                  <td class="text-right">
                                     <span t-field="line.name"/>
                                 </td>
                                 <td class="text-right">
-                                    <span t-field="line.date_planned"/>
+                                    <span t-field="line.date_order"/>
                                 </td>
                                 <td class="text-right">
                                     <span t-field="line.product_qty"/>
