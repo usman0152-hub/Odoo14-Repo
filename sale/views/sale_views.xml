@@ -321,11 +321,14 @@
                             <field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options='{"always_reload": True}'/>
                             <field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'delivery'}" options='{"always_reload": True}'/>
                         </group>
+
                         <group name="order_details">
+
                             <field name="validity_date" attrs="{'invisible': [('state', 'in', ['sale', 'done'])]}"/>
                             <div class="o_td_label" groups="base.group_no_one" attrs="{'invisible': [('state', 'in', ['sale', 'done', 'cancel'])]}">
                                 <label for="date_order" string="Quotation Date"/>
                             </div>
+
                             <field name="date_order" nolabel="1" groups="base.group_no_one" attrs="{'invisible': [('state', 'in', ['sale', 'done', 'cancel'])]}"/>
                             <div class="o_td_label" attrs="{'invisible': [('state', 'in', ['draft', 'sent'])]}">
                                 <label for="date_order" string="Order Date"/>
@@ -344,6 +347,7 @@
                             </div>
                             <field name="currency_id" invisible="1"/>
                             <field name="payment_term_id" options="{'no_open':True,'no_create': True}"/>
+
                         </group>
                     </group>
                     <notebook>
@@ -505,10 +509,12 @@
                                         options="{'color_field': 'color'}"
                                         domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
                                     />
-                                    <field name="container" optional="hide"/>
-                                    <field name="bag"/>
-                                         <field name="total_weight" string="weight/bags"/>
-                                         <field name="qty" />
+                                    <field name="container" />
+
+                                         <field name="total_weight" string="Bags"/>
+                                         <field name="qty" string="Bags Per KG"/>
+                                    <field name="qty_bag" string="Quantity Per Bag"/>
+                                    <field name="master"/>
                                     <field
                                         name="product_uom_qty"
                                         decoration-info="(not display_type and invoice_status == 'to invoice')" decoration-bf="(not display_type and invoice_status == 'to invoice')"
@@ -555,12 +561,13 @@
                                         optional="show"
                                     />
                                     <field
-                                        name="customer_lead"
+                                        name="customer_lead" invisible="1"
                                         optional="hide"
                                         attrs="{'readonly': [('parent.state', 'not in', ['draft', 'sent', 'sale'])]}"
                                     />
+
                                     <field name="unit_price" string="Rate" optional="show"/>
-                                        <field name="per_mt"/>
+                                        <field name="per_mt" />
                                     <field
                                         name="price_unit" string="Price Per M/T"
                                         attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}"
@@ -577,9 +584,6 @@
                                     <field name="discount" string="Disc.%" groups="product.group_discount_per_so_line" optional="show" widget="product_discount"/>
                                     <field name="price_subtotal" widget="monetary" groups="account.group_show_line_subtotals_tax_excluded"/>
                                     <field name="price_total" widget="monetary" groups="account.group_show_line_subtotals_tax_included"/>
-                                    <field name="dollar"/>
-                                    <field name="exchange"/>
-                                    <field name="rupees"/>
                                     <field name="state" invisible="1"/>
                                     <field name="invoice_status" invisible="1"/>
                                     <field name="currency_id" invisible="1"/>
