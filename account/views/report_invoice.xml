@@ -3,14 +3,16 @@
     <data>
         <template id="report_invoice_document">
             <t t-call="web.external_layout">
+
                 <t t-set="o" t-value="o.with_context(lang=lang)" />
+
                 <t t-set="address">
                      <div class="text-end">
                     <h6><b>Consignee Address</b></h6>
                     <address invisible="1" t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}' />
-                    <div invisile="1" t-if="o.partner_id.vat" class="mt16">
-                        <t t-if="o.company_id.country_id.vat_label" t-esc="o.company_id.country_id.vat_label" id="inv_tax_id_label"/>
-                        <t t-else="">Tax ID</t>:  <span t-field="o.partner_id.vat"/></div>
+                    <div t-if="o.partner_id.vat" class="mt16">
+                         <t t-if="o.company_id.country_id.vat_label" t-esc="o.company_id.country_id.vat_label" id="inv_tax_id_label"/>
+                        <t t-else="">Tax ID</t>: <span t-field="o.partner_id.vat"/></div>
                     </div>
                 </t>
                 <div class="page">
@@ -25,11 +27,15 @@
 <strong>Bank:</strong>
                     <u><span t-field="o.bank"/></u>
 
-        <div id="invoice" class="text-center">
-                             <h4><b><u>ORIGINAL INVOICE</u></b></h4>
+        <div  class="text-center">
+    <h4> <b><u> <span  t-if="o.invoice_type == 'original'" t-field="o.invoice_type">
+                             ORIGINAL INVOICE</span>
+        <span  t-if="o.invoice_type == 'custom'" t-field="o.invoice_type">
+                             CUSTOM INVOICE</span></u></b>
+</h4>
                         </div>
                     <div id="informations" class="row mt32 mb32">
-                        <div class="col-auto col-4 mw-100 mb-2" t-if="o.name" name="name">
+                        <div class="col-auto col-6 mw-100 mb-2" t-if="o.name" name="name">
                             <strong>Invoice no:</strong>
                             <u><span t-field="o.name"/></u>
                         </div>
@@ -59,7 +65,7 @@
                         </div>
                     </div>
                     <div class="importer">
-                        <div class="text-start" t-if="o.importer"  name="impoter">
+                        <div class="text-start" t-if="o.importer"  name="importer">
                             <strong>Importers:</strong>
                              <u><span t-field="o.importer"/></u>
                         </div>
@@ -71,11 +77,13 @@
                         <thead>
                             <tr>
                               <th name="th_container" class="text-left"><span>Container#</span></th>
-                                <th name="th_description" class="text-right"><span>Bags</span></th>
-                                <th name="th_total_weight" class="text-right"><span>kgs Per Bag</span></th>
+                                <th name="th_qty" class="text-right"><span>Bags</span></th>
+                                <th name="th_total_weight" class="text-right"><span>Kgs Per Bag</span></th>
+                                <th name="th_qty_bag" class="text-right"><span>Quantity Per Bag</span></th>
+                                <th class="text-right" name="th_master" ><span>Master Bag</span></th>
                                 <th name="th_quantity" class="text-right"><span>Net Weight</span></th>
-                                <th name="th_qty" class="text-center"><span>Description</span></th>
-                                <th name="th_priceunit" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}"><span>Unit Price</span></th>
+                                <th name="th_description" class="text-right"><span>Description</span></th>
+                                <th name="th_unit_price" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}"><span>Unit Price</span></th>
                                  <th name="th_subtotal" class="text-right"><span>Amount</span></th>
                                 <th name="th_price_unit" t-if="display_discount" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
                                     <span>Disc.%</span>
@@ -107,14 +115,22 @@
                                             <span t-field="line.qty"/>
                                         </td>
                                          <td class="text-right">
+                                            <span t-field="line.qty_bag"/>
+                                        </td>
+                                        <td  class="text-right">
+                                            <span t-field="line.master"/>
+
+                                        </td>
+                                         <td class="text-right">
                                             <span t-field="line.quantity"/>
                                             <span t-field="line.product_uom_id"  groups="uom.group_uom"/>
                                         </td>
                                         <td class="text-right" name="account_invoice_line_name"><span t-field="line.name" t-options="{'widget': 'text'}"/></td>
 
-                                        <td t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
-                                            <span class="text-nowrap" t-field="line.price_unit"/>
+                                        <td t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                            <span class="text-nowrap" t-field="line.unit_price"/>
                                         </td>
+
                                         <td class="text-right">
                                             <span t-field="line.price_subtotal"/>
                                         </td>
@@ -248,7 +264,18 @@
             </t>
         </template>
 
-        <template id="report_invoice">
+
+        <template id="report_invoice_custom" >
+ <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-set="lang" t-value="o.partner_id.lang"/>
+                    <t t-if="o._get_name_invoice_report() == 'account.report_invoice_document'"
+                        t-call="account.report_invoice_document" t-lang="lang"/>
+                </t>
+            </t>
+        </template>
+
+         <template id="report_invoice">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
                     <t t-set="lang" t-value="o.partner_id.lang"/>
