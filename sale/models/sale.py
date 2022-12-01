@@ -168,6 +168,14 @@ class SaleOrder(models.Model):
         ('done', 'Locked'),
         ('cancel', 'Cancelled'),
         ], string='Status', readonly=True, copy=False, index=True, tracking=3, default='draft')
+    hide_mangoes_field = fields.Boolean(string="Hide Mangoes")
+    product_id = fields.Many2one('product.product', related='order_line.product_id', string='Product', readonly=False)
+
+    product = fields.Selection([
+        ('mangoes', 'Mangoes'),
+        ('potatoes', 'Potatoes'),
+        ('onion', 'Onion'),
+    ], string='Product')
     date_order = fields.Datetime(string='Order Date', required=True, readonly=True, index=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, copy=False, default=fields.Datetime.now, help="Creation date of draft/sent orders,\nConfirmation date of confirmed orders.")
     validity_date = fields.Date(string='Expiration', readonly=True, copy=False, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]},
                                 default=_default_validity_date)
@@ -1376,6 +1384,7 @@ class SaleOrderLine(models.Model):
     unit_price = fields.Float(string="Unit Price")
     total_weight = fields.Float(string="Weight", store=True)
     dollar = fields.Float(string="Dollar Received")
+    hide_mangoes_field = fields.Boolean(string="Hide Mangoes")
     exchange = fields.Float(string="Exchange Rate")
     rupees = fields.Float(string="Rupees", compute="_compute_rupees")
     price_subtotal = fields.Monetary(compute='_compute_amount', string='Subtotal', readonly=True, store=True)
@@ -1383,6 +1392,7 @@ class SaleOrderLine(models.Model):
     price_total = fields.Monetary(compute='_compute_amount', string='Total', readonly=True, store=True)
 
     bag = fields.Integer("Bags")
+
     price_reduce = fields.Float(compute='_get_price_reduce', string='Price Reduce', digits='Product Price', readonly=True, store=True)
     tax_id = fields.Many2many('account.tax', string='Taxes', context={'active_test': False})
     price_reduce_taxinc = fields.Monetary(compute='_get_price_reduce_tax', string='Price Reduce Tax inc', readonly=True, store=True)
@@ -1397,12 +1407,17 @@ class SaleOrderLine(models.Model):
         'product.template', string='Product Template',
         related="product_id.product_tmpl_id", domain=[('sale_ok', '=', True)])
     product_updatable = fields.Boolean(compute='_compute_product_updatable', string='Can Edit Product', readonly=True, default=True)
-    product_uom_qty = fields.Float(string='Quantity', digits='Product Unit of Measure', required=True, compute="_compute_quantity", inverse="_inverse_quantity", default=1.0)
+    product_uom_qty = fields.Float(string='Quantity', digits='Product Unit of Measure', required=True,
+                                    default=1.0)
+
+    #product_uom_qty = fields.Float(string='Quantity', digits='Product Unit of Measure', required=True, compute="_compute_quantity", inverse="_inverse_quantity", default=1.0)
     per_mt = fields.Integer(string="Per M/T", default=1000)
-    form = fields.Integer(string="Form E no", store=True, required=True)
+    form = fields.Char(string="Form E no", store=True)
     container = fields.Char(string="Container", store=True)
-    bag = fields.Char("Bags")
-    qty = fields.Float(string="Qty", store=True)
+    bag = fields.Integer("Bags")
+    master = fields.Integer("Master Bag", compute="_compute_master")
+    qty_bag = fields.Integer("Quantity Per Bag")
+    qty = fields.Float(string="Kgs Per Bag", store=True)
     product_uom = fields.Many2one('uom.uom', string='Unit of Measure', domain="[('category_id', '=', product_uom_category_id)]")
     product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id', readonly=True)
     product_uom_readonly = fields.Boolean(compute='_compute_product_uom_readonly')
@@ -1461,20 +1476,26 @@ class SaleOrderLine(models.Model):
 
     # usmans api for adding fields
     # document_type = 'sale'
+
+    @api.depends('qty', 'qty_bag')
+    def _compute_master(self):
+        for record in self:
+            record.master = record.qty * record.qty_bag
+
     @api.depends('dollar', 'exchange')
     def _compute_rupees(self):
         for record in self:
             record.rupees = record.dollar * record.exchange
 
-    @api.depends('product_uom_qty', 'total_weight', 'qty')
-    def _compute_quantity(self):
-        for record in self:
-            record.product_uom_qty = record.total_weight * record.qty
+   # @api.depends('product_uom_qty', 'total_weight', 'qty')
+    #def _compute_quantity(self):
+     #   for record in self:
+      #      record.product_uom_qty = record.total_weight * record.qty
 
-    @api.depends('product_uom_qty', 'total_weight', 'qty')
-    def _inverse_quantity(self):
-        for record in self:
-            record.product_uom_qty = record.total_weight * record.qty
+    #@api.depends('product_uom_qty', 'total_weight', 'qty')
+    #def _inverse_quantity(self):
+     #   for record in self:
+    # record.product_uom_qty = record.total_weight * record.qty
 
     @api.depends('unit_price', 'per_mt')
     def _compute_price(self):
@@ -1697,9 +1718,8 @@ class SaleOrderLine(models.Model):
             'per_mt': self.per_mt,
             'container': self.container,
             'bag': self.bag,
-            'dollar': self.dollar,
-            'exchange': self.exchange,
-            'rupees': self.rupees,
+            'master': self.master,
+            'qty_bag': self.qty_bag,
             'form': self.form,
         }
         if optional_values:
