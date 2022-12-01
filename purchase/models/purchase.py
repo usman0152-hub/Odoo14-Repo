@@ -97,6 +97,9 @@ class PurchaseOrder(models.Model):
                                       string='Drop Ship Address', states=READONLY_STATES,
                                       help="Put an address if you want to deliver directly from the vendor to the customer. "
                                            "Otherwise, keep empty to deliver to your own company.")
+    product_id = fields.Many2one('product.product', string='Product', domain=[('purchase_ok', '=', True)],
+                                 change_default=True)
+
     currency_id = fields.Many2one('res.currency', 'Currency', required=True, states=READONLY_STATES,
                                   default=lambda self: self.env.company.currency_id.id)
     state = fields.Selection([
@@ -136,6 +139,7 @@ class PurchaseOrder(models.Model):
     incoterm_id = fields.Many2one('account.incoterms', 'Incoterm', states={'done': [('readonly', True)]},
                                   help="International Commercial Terms are a series of predefined commercial terms used in international transactions.")
 
+    active = fields.Boolean(string="active", default=True)
     product_id = fields.Many2one('product.product', related='order_line.product_id', string='Product', readonly=False)
     user_id = fields.Many2one(
         'res.users', string='Purchase Representative', index=True, tracking=True,
@@ -601,6 +605,7 @@ class PurchaseOrder(models.Model):
             'invoice_payment_term_id': self.payment_term_id.id,
             'invoice_line_ids': [],
             'company_id': self.company_id.id,
+            'product_id': self.product_id,
             'amount_untaxed': self.amount_untaxed,
         }
         return invoice_vals
@@ -868,7 +873,7 @@ class PurchaseOrderLine(models.Model):
 
     name = fields.Text(string='Description', required=True)
     sequence = fields.Integer(string='Sequence', default=10)
-    product_qty = fields.Float(string='Quantity', digits='Product Unit of Measure', required=True)
+    product_qty = fields.Float(string='Quantity', digits='Product Unit of Measure', required=True, default=1.0)
     product_uom_qty = fields.Float(string='Total Quantity', compute='_compute_product_uom_qty', store=True)
     date_planned = fields.Datetime(string='Delivery Date', index=True,
                                    help="Delivery date expected from vendor. This date respectively defaults to vendor pricelist lead time then today's date.")
