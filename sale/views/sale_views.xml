@@ -202,10 +202,10 @@
                     <field name="commitment_date" optional="hide"/>
                     <field name="expected_date" optional="hide"/>
                     <field name="partner_id" readonly="1"/>
-                    <field name="user_id" invisible="1" optional="show" widget="many2one_avatar_user"/>
-                    <field name="activity_ids" invisible="1" widget="list_activity" optional="show"/>
+                    <field name="user_id" optional="show" widget="many2one_avatar_user"/>
+                    <field name="activity_ids" widget="list_activity" optional="show"/>
                     <field name="team_id" optional="hide"/>
-                    <field name="company_id" invisible="1" groups="base.group_multi_company" optional="show" readonly="1"/>
+                    <field name="company_id" groups="base.group_multi_company" optional="show" readonly="1"/>
                     <field name="amount_untaxed" sum="Total Tax Excluded" widget="monetary" optional="hide"/>
                     <field name="amount_tax" sum="Tax Total" widget="monetary" optional="hide"/>
                     <field name="amount_total" sum="Total Tax Included" widget="monetary" decoration-bf="1" optional="show"/>
@@ -228,11 +228,11 @@
                     <field name="commitment_date" widget="date" optional="hide"/>
                     <field name="expected_date" widget="date" optional="hide"/>
                     <field name="partner_id" readonly="1"/>
-                    <field name="user_id" invisible="1" widget="many2one_avatar_user" optional="show"/>
-                    <field name="activity_ids" invisible="1" widget="list_activity" optional="show"/>
+                    <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                    <field name="activity_ids" widget="list_activity" optional="show"/>
                     <field name="team_id" optional="hide"/>
                     <field name="tag_ids" optional="hide" widget="many2many_tags" options="{'color_field': 'color'}"/>
-                    <field name="company_id" invisible="1" groups="base.group_multi_company" optional="show" readonly="1"/>
+                    <field name="company_id" groups="base.group_multi_company" optional="show" readonly="1"/>
                     <field name="amount_untaxed" sum="Total Tax Excluded" widget="monetary" optional="hide"/>
                     <field name="amount_tax" sum="Tax Total" widget="monetary" optional="hide"/>
                     <field name="amount_total" sum="Total Tax Included" widget="monetary" decoration-bf="1" optional="show"/>
@@ -318,18 +318,14 @@
                     <group name="sale_header">
                         <group name="partner_details">
                             <field name="partner_id" string="Customer/Consignee" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}" options='{"always_reload": True}'/>
-                            <field name="invoice_type" context="{'partner_id': partner_id}" invisible="1"/>
                             <field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options='{"always_reload": True}'/>
                             <field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'delivery'}" options='{"always_reload": True}'/>
                         </group>
-
                         <group name="order_details">
-
                             <field name="validity_date" attrs="{'invisible': [('state', 'in', ['sale', 'done'])]}"/>
                             <div class="o_td_label" groups="base.group_no_one" attrs="{'invisible': [('state', 'in', ['sale', 'done', 'cancel'])]}">
                                 <label for="date_order" string="Quotation Date"/>
                             </div>
-
                             <field name="date_order" nolabel="1" groups="base.group_no_one" attrs="{'invisible': [('state', 'in', ['sale', 'done', 'cancel'])]}"/>
                             <div class="o_td_label" attrs="{'invisible': [('state', 'in', ['draft', 'sent'])]}">
                                 <label for="date_order" string="Order Date"/>
@@ -348,7 +344,6 @@
                             </div>
                             <field name="currency_id" invisible="1"/>
                             <field name="payment_term_id" options="{'no_open':True,'no_create': True}"/>
-
                         </group>
                     </group>
                     <notebook>
@@ -416,8 +411,8 @@
                                             <field name="tax_id" widget="many2many_tags" options="{'no_create': True}" context="{'search_view_ref': 'account.account_tax_view_search'}" domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]"
                                                 attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}"/>
                                             <label for="discount" groups="product.group_discount_per_so_line"/>
-                                            <div name="discount" invisible="1" groups="product.group_discount_per_so_line">
-                                                <field name="discount" invisible="1" class="oe_inline"/> %%
+                                            <div name="discount" groups="product.group_discount_per_so_line">
+                                                <field name="discount" class="oe_inline"/> %%
                                             </div>
                                             <!--
                                                 We need the sequence field to be here
@@ -460,9 +455,7 @@
                                     <!-- We do not display the type because we don't want the user to be bothered with that information if he has no section or note. -->
                                     <field name="display_type" invisible="1"/>
                                     <field name="product_uom_category_id" invisible="1"/>
-                                    <field name="invoice_type" context="{'invoice_type': parent.invoice_type}" invisible="1"/>
                                     <field name="form"/>
-                                         <field name="container" widget="mask" data-inputmask="'mask': '[a]{4}-[9]{7}'"/>
                                     <field name="product_updatable" invisible="1"/>
                                     <field
                                         name="product_id"
@@ -504,7 +497,6 @@
                                       domain="[('sale_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
                                       widget="product_configurator"/>
                                     <field name="name" widget="section_and_note_text" optional="show"/>
-                                    <field name="description" />
                                     <field
                                         name="analytic_tag_ids"
                                         optional="hide"
@@ -513,9 +505,10 @@
                                         options="{'color_field': 'color'}"
                                         domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
                                     />
-
-
-
+                                    <field name="container" optional="hide"/>
+                                    <field name="bag"/>
+                                         <field name="total_weight" string="weight/bags"/>
+                                         <field name="qty" />
                                     <field
                                         name="product_uom_qty"
                                         decoration-info="(not display_type and invoice_status == 'to invoice')" decoration-bf="(not display_type and invoice_status == 'to invoice')"
@@ -562,19 +555,18 @@
                                         optional="show"
                                     />
                                     <field
-                                        name="customer_lead" invisible="1"
+                                        name="customer_lead"
                                         optional="hide"
                                         attrs="{'readonly': [('parent.state', 'not in', ['draft', 'sent', 'sale'])]}"
                                     />
-
                                     <field name="unit_price" string="Rate" optional="show"/>
-                                        <field name="per_mt" invisible="1"/>
+                                        <field name="per_mt"/>
                                     <field
-                                        name="price_unit" invisible="1" string="Price Per M/T"
+                                        name="price_unit" string="Price Per M/T"
                                         attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}"
                                     />
                                     <field
-                                        name="tax_id" invisible="1"
+                                        name="tax_id"
                                         widget="many2many_tags"
                                         options="{'no_create': True}"
                                         domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]"
@@ -585,6 +577,9 @@
                                     <field name="discount" string="Disc.%" groups="product.group_discount_per_so_line" optional="show" widget="product_discount"/>
                                     <field name="price_subtotal" widget="monetary" groups="account.group_show_line_subtotals_tax_excluded"/>
                                     <field name="price_total" widget="monetary" groups="account.group_show_line_subtotals_tax_included"/>
+                                    <field name="dollar"/>
+                                    <field name="exchange"/>
+                                    <field name="rupees"/>
                                     <field name="state" invisible="1"/>
                                     <field name="invoice_status" invisible="1"/>
                                     <field name="currency_id" invisible="1"/>
@@ -664,7 +659,7 @@
                                 </group>
                                 <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
                                     <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                                    <field name="amount_tax" invisible="1" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
                                     <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                                         <label for="amount_total" />
                                     </div>
@@ -1212,7 +1207,7 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_invoice_tree"/>
             <field name="arch" type="xml">
-                <field name="invoice_user_id" invisible="1" position="after">
+                <field name="invoice_user_id" position="after">
                     <field name="team_id" invisible="context.get('default_move_type') not in ('out_invoice', 'out_refund','out_receipt')" optional="hide"/>
                 </field>
             </field>
