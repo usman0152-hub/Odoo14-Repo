@@ -281,9 +281,7 @@
                     <attribute name="readonly">1</attribute>
                 </field>
                 <field name="balance" position="attributes"><attribute name="optional">hide</attribute></field>
-                #field name="balance" position="after">
-                    #field name="cumulated_balance" optional="hide"/>
-                #/field>
+
             </field>
         </record>
 
@@ -619,7 +617,7 @@
                     <div groups="account.group_account_invoice,account.group_account_readonly"
                          class="alert alert-info" role="alert" style="margin-bottom:0px;"
                          attrs="{'invisible': ['|', '|', ('move_type', 'not in', ('in_invoice', 'in_refund')), ('invoice_has_outstanding', '=', False), ('payment_state', 'not in', ('not_paid', 'partial'))]}">
-                        You have <bold><a class="alert-link" href="#outstanding" role="button">outstanding debits</a></bold> for this vendor. You can allocate them to mark this bill as paid.
+                        You have <bold><a class="alert-link" href="outstanding" role="button">outstanding debits</a></bold> for this vendor. You can allocate them to mark this bill as paid.
                     </div>
                     <div class="alert alert-info" role="alert" style="margin-bottom:0px;"
                          attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('auto_post', '=', False)]}">
@@ -1102,7 +1100,7 @@
                                          <field name="exchange"  sum = "Total" force_save="1"/>
                                         <field name="rupees"  sum = "Total" force_save="1"/>
                                          <field name="invoice_amount"  sum = "Total" force_save="1" invisible="1" />
-                                         <field name="dollar_balance" widget="monetary" sum = "Total" force_save="1" invisible="1"/>
+                                         <field name="dollar_balance" widget="monetary" sum = "Total" force_save="1" />
                                         <field name="price_total"
                                                string="Total"
                                                groups="account.group_show_line_subtotals_tax_included"/>
